@@ -1,5 +1,5 @@
 import random
-from abc import ABC
+from abc import ABC, abstractmethod
 
 
 class Player(ABC):
@@ -8,12 +8,20 @@ class Player(ABC):
         self.hand = []
         self.city = []
 
+    @abstractmethod
+    def choose_character(self, game, round):
+        raise Exception('Should be implemented by sub class')
+
+    def play_turn(self, game, round):
+        raise Exception('Should be implemented by sub class')
+
 
 class RandomPlayer(Player):
     def choose_character(self, game, round):
-        c = round.character_deck.pop(random.randint(0, len(round.character_deck) - 1))
-        print(self.name, 'chooses', c.name())
-        return c
+        return random.choice(round.get_deck_characters())
+
+    def play_turn(self, game, round):
+        print('Do nothing')
 
 
 def create_players(game, player_count):

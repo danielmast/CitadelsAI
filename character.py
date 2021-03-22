@@ -1,5 +1,6 @@
 import random
 from abc import ABC
+from enum import Enum
 
 from color import Color
 
@@ -53,7 +54,11 @@ class Warlord(Character):
         self.color = Color.RED
 
 
-def create_character_deck():
-    deck = [Assassin(), Thief(), Magician(), King(), Bishop(), Merchant(), Architect(), Warlord()]
-    random.shuffle(deck)
-    return deck
+class CharacterState(Enum):
+    DECK = 1
+    FACE_UP = 2
+    FACE_DOWN = 3
+
+
+def characters():
+    return [Assassin(), Thief(), Magician(), King(), Bishop(), Merchant(), Architect(), Warlord()]
