@@ -19,6 +19,8 @@ class Round:
     def start(self):
         print('Start round', self.number)
 
+        print(self.crown_player.name, 'has the crown')
+
         print('Put one character face down:')
         face_down = random.choice(self.get_deck_characters())
         self.character_state[face_down] = CharacterState.FACE_DOWN
@@ -30,17 +32,16 @@ class Round:
             self.character_state[face_up] = CharacterState.FACE_UP
             print(face_up.name())
 
+        self.choose_characters()
+        self.player_turns()
+
+
+    def choose_characters(self):
         while self.current_player is not None:
             c = self.current_player.choose_character(self.game, self)
             print(self.current_player.name, 'chooses', c.name())
             self.character_state[c] = self.current_player
             self.next_player()
-
-        for c, state in self.character_state.items():
-            if isinstance(state, Player):
-                self.current_player = state
-                print(self.current_player.name, 'plays')
-                self.current_player.play_turn(self.game, self)
 
     def next_player(self):
         current_index = self.game.players.index(self.current_player)
@@ -50,6 +51,26 @@ class Round:
         else:
             self.current_player = next_player
 
+    def player_turns(self):
+        for c, state in self.character_state.items():
+            if isinstance(state, Player):
+                self.current_player = state
+                if self.murdered_character == c:
+                    print(self.current_player.name, 'skips a round because his character (', c.name(), ') was murdered')
+                    continue
+
+                if self.robbed_character == c:
+                    print(self.current_player.name, 'was robbed and loses his gold')
+                    self.get_player_by_character('Thief').gold += self.current_player.gold
+                    self.current_player.gold = 0
+
+                if c.name() == 'King':
+                    print(self.current_player.name, 'receives the crown next round')
+                    self.game.next_crown_player = self.current_player
+
+                print(self.current_player.name, 'plays')
+                self.current_player.play_turn(self.game, self, c)
+
     def get_deck_characters(self):
         deck = []
         for c, state in self.character_state.items():
@@ -57,6 +78,10 @@ class Round:
                 deck.append(c)
         return deck
 
+    def get_player_by_character(self, character_name):
+        for c, state in self.character_state.items():
+            if c.name() == character_name:
+                return state
 
 class Step(Enum):
     CHOOSE_CHARACTERS = 1
