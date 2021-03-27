@@ -77,6 +77,11 @@ class Merchant(ColorCharacter):
     def __init__(self):
         self.color = Color.GREEN
 
+    @staticmethod
+    def receive_extra_gold(player):
+        print('The Merchant receives 1 extra gold')
+        player.gold += 1
+
 
 class Architect(Character):
     def __init__(self):

@@ -1,7 +1,7 @@
 import random
 from abc import ABC, abstractmethod
 
-from character import CharacterState, Assassin, Thief, Magician, ColorCharacter
+from character import CharacterState, Assassin, Thief, Magician, ColorCharacter, Merchant
 
 
 class Player(ABC):
@@ -71,6 +71,9 @@ class RandomPlayer(Player):
             self.gold += 2
         else:
             self.draw_districts(game)
+
+        if isinstance(character, Merchant):
+            Merchant.receive_extra_gold(self)
 
         if random_boolean() and self.buildable_districts():
             self.build_district()
