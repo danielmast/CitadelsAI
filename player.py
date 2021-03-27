@@ -1,7 +1,7 @@
 import random
 from abc import ABC, abstractmethod
 
-from character import CharacterState, Assassin, Thief, Magician, ColorCharacter, Merchant, Architect
+from character import CharacterState, Assassin, Thief, Magician, ColorCharacter, Merchant, Architect, Warlord
 
 
 class Player(ABC):
@@ -110,6 +110,21 @@ class RandomPlayer(Player):
         if isinstance(character, ColorCharacter):
             if not has_received_city_gold:
                 character.receive_city_gold(self)
+
+        if isinstance(character, Warlord) and random_boolean():
+            victim_player = None
+            while victim_player is None or victim_player == round.get_player_by_character('Bishop'):
+                victim_player = self.random_other_player(game)
+
+            victim_city = victim_player.city.copy()
+            random.shuffle(victim_city)
+
+            has_destroyed_district = False
+            for district in victim_city:
+                if not has_destroyed_district and Warlord.can_destroy_district(self, victim_player, district, round):
+                    Warlord.destroy_district(self, victim_player, district)
+                    has_destroyed_district = True
+
 
     @staticmethod
     def murder(round):
