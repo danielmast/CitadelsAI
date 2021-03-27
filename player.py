@@ -1,7 +1,7 @@
 import random
 from abc import ABC, abstractmethod
 
-from character import CharacterState
+from character import CharacterState, Assassin, Thief, Magician
 
 
 class Player(ABC):
@@ -53,9 +53,15 @@ class RandomPlayer(Player):
             self.murder(round)
         elif character.name() == 'Thief':
             self.rob(round)
+        elif character.name() == 'Magician':
+            action = random.randint(0, 3)
+            if action == 0:
+                self.exchange_hands(game)
+            elif action == 1 and len(self.hand) > 0:
+                self.discard_and_draw(game)
 
         if random_boolean() or len(game.district_deck) < 2:
-            print(self.name, 'takes two gold')
+            print(self.name, 'takes 2 gold')
             self.gold += 2
         else:
             self.draw_districts(game)
@@ -67,8 +73,7 @@ class RandomPlayer(Player):
         victim = None
         while victim is None or victim.name() == 'Assassin' or round.character_state[victim] == CharacterState.FACE_UP:
             victim = random.choice(list(round.character_state.keys()))
-        print(self.name, 'murders the', victim.name())
-        round.murdered_character = victim
+        Assassin.murder(victim, round)
 
     def rob(self, round):
         victim = None
@@ -76,8 +81,31 @@ class RandomPlayer(Player):
                 or round.character_state[victim] == CharacterState.FACE_UP\
                 or victim == round.murdered_character:
             victim = random.choice(list(round.character_state.keys()))
-        print(self.name, 'robs the', victim.name())
-        round.robbed_character = victim
+        Thief.rob(victim, round)
+
+    def exchange_hands(self, game):
+        victim_player = self.random_other_player(game)
+        Magician.exchange_hands(self, victim_player)
+
+    def discard_and_draw(self, game):
+        districts = []
+
+        if len(self.hand) == 1:
+            districts.append(self.hand[0])
+        else:
+            shuffled_hand = self.hand.copy()
+            random.shuffle(shuffled_hand)
+            for i in range(0, random.randint(0, len(self.hand) - 1) + 1):
+                districts.append(shuffled_hand[i])
+
+        Magician.discard_and_draw(self, districts, game)
+
+    def random_other_player(self, game):
+        other_players = []
+        for player in game.players:
+            if player is not self:
+                other_players.append(player)
+        return random.choice(other_players)
 
     def take_gold(self):
         self.gold += 2
@@ -85,7 +113,7 @@ class RandomPlayer(Player):
     def draw_districts(self, game):
         district1 = game.district_deck.pop()
         district2 = game.district_deck.pop()
-        print(self.name, 'grabs two districts and keeps the', district1.name)
+        print(self.name, 'grabs 2 districts and keeps the', district1.name)
         self.hand.append(district1)
         game.district_deck.insert(0, district2)
 
