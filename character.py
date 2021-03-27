@@ -13,7 +13,7 @@ class ColorCharacter(Character):
     def receive_city_gold(self, player):
         gold = 0
         for district in player.city:
-            if district.color == self.color:
+            if district.color == self.color or district.name == 'School of Magic':
                 gold += 1
 
         if gold > 0:
