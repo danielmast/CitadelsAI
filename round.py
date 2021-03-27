@@ -35,7 +35,6 @@ class Round:
         self.choose_characters()
         self.player_turns()
 
-
     def choose_characters(self):
         while self.current_player is not None:
             c = self.current_player.choose_character(self.game, self)
@@ -82,6 +81,7 @@ class Round:
         for c, state in self.character_state.items():
             if c.name() == character_name:
                 return state
+
 
 class Step(Enum):
     CHOOSE_CHARACTERS = 1

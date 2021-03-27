@@ -15,7 +15,7 @@ class Player(ABC):
     def choose_character(self, game, round):
         raise Exception('Should be implemented by sub class')
 
-    def play_turn(self, game, round):
+    def play_turn(self, game, round, character):
         raise Exception('Should be implemented by sub class')
 
 
@@ -28,8 +28,16 @@ class RandomPlayer(Player):
             self.murder(round)
         elif character.name() == 'Thief':
             self.rob(round)
+
+        if random_boolean():
+            print(self.name, 'takes two gold')
+            self.gold += 2
         else:
-            print(self.name, 'does nothing')
+            district1 = game.district_deck.pop()
+            district2 = game.district_deck.pop()
+            print(self.name, 'grabs two districts and keeps the', district1.name)
+            self.hand.append(district1)
+            game.district_deck.insert(0, district2)
 
     def murder(self, round):
         victim = None
@@ -46,6 +54,10 @@ class RandomPlayer(Player):
             victim = random.choice(list(round.character_state.keys()))
         print(self.name, 'robs the', victim.name())
         round.robbed_character = victim
+
+
+def random_boolean():
+    return random.randint(0, 1) == 0
 
 
 def create_players(game, player_count):
