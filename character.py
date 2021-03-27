@@ -87,6 +87,17 @@ class Architect(Character):
     def __init__(self):
         self.color = Color.NONE
 
+    @staticmethod
+    def draw_extra_districts(player, game):
+        drawn = 0
+        for i in range(0, 2):
+            if len(game.district_deck) > 0:
+                player.hand.append(game.district_deck.pop())
+                drawn += 1
+
+        if drawn > 0:
+            print('The Architect draws', drawn, 'extra districts')
+
 
 class Warlord(ColorCharacter):
     def __init__(self):

@@ -1,7 +1,7 @@
 import random
 from abc import ABC, abstractmethod
 
-from character import CharacterState, Assassin, Thief, Magician, ColorCharacter, Merchant
+from character import CharacterState, Assassin, Thief, Magician, ColorCharacter, Merchant, Architect
 
 
 class Player(ABC):
@@ -43,6 +43,27 @@ class Player(ABC):
             return True
         return False
 
+    def draw_district(self, game):
+        print(self.name, 'grabs a district')
+        district = game.district_deck.pop()
+        self.hand.append(district)
+        return district
+
+    def discard_district(self, game, district):
+        print(self.name, 'discards a district')
+        self.hand.remove(district)
+        game.district_deck.insert(0, district)
+
+    def take_two_gold(self):
+        print(self.name, 'takes 2 gold')
+        self.gold += 2
+
+    def build_district(self, district):
+        self.hand.remove(district)
+        print(self.name, 'builds a', district.name)
+        self.city.append(district)
+        self.gold -= district.cost
+
 
 class RandomPlayer(Player):
     def choose_character(self, game, round):
@@ -67,28 +88,38 @@ class RandomPlayer(Player):
                 has_received_city_gold = True
 
         if random_boolean() or len(game.district_deck) < 2:
-            print(self.name, 'takes 2 gold')
-            self.gold += 2
+            self.take_two_gold()
         else:
             self.draw_districts(game)
 
         if isinstance(character, Merchant):
             Merchant.receive_extra_gold(self)
+        elif isinstance(character, Architect):
+            Architect.draw_extra_districts(self, game)
 
         if random_boolean() and self.buildable_districts():
-            self.build_district()
+            district = random.choice(self.buildable_districts())
+            self.build_district(district)
+
+        if isinstance(character, Architect):
+            for i in range(0, random.randint(0, 2)):
+                if self.buildable_districts():
+                    district = random.choice(self.buildable_districts())
+                    self.build_district(district)
 
         if isinstance(character, ColorCharacter):
             if not has_received_city_gold:
                 character.receive_city_gold(self)
 
-    def murder(self, round):
+    @staticmethod
+    def murder(round):
         victim = None
         while victim is None or victim.name() == 'Assassin' or round.character_state[victim] == CharacterState.FACE_UP:
             victim = random.choice(list(round.character_state.keys()))
         Assassin.murder(victim, round)
 
-    def rob(self, round):
+    @staticmethod
+    def rob(round):
         victim = None
         while victim is None or victim.name() == 'Assassin' or victim.name() == 'Thief' \
                 or round.character_state[victim] == CharacterState.FACE_UP\
@@ -124,11 +155,9 @@ class RandomPlayer(Player):
         self.gold += 2
 
     def draw_districts(self, game):
-        district1 = game.district_deck.pop()
-        district2 = game.district_deck.pop()
-        print(self.name, 'grabs 2 districts and keeps the', district1.name)
-        self.hand.append(district1)
-        game.district_deck.insert(0, district2)
+        district1 = self.draw_district(game)
+        self.draw_district(game)
+        self.discard_district(game, district1)
 
     def buildable_districts(self):
         affordable = []
@@ -142,13 +171,6 @@ class RandomPlayer(Player):
             if district.name == district_name:
                 return True
         return False
-
-    def build_district(self):
-        district = random.choice(self.buildable_districts())
-        self.hand.remove(district)
-        print(self.name, 'builds a', district.name)
-        self.city.append(district)
-        self.gold -= district.cost
 
 
 def random_boolean():
