@@ -104,16 +104,22 @@ class Warlord(ColorCharacter):
         self.color = Color.RED
 
     @staticmethod
+    def destroy_cost(victim_player, district):
+        if victim_player.has_built('Great Wall') and district.name != 'Great Wall':
+            return district.cost
+        return district.cost - 1
+
+    @staticmethod
     def can_destroy_district(player, victim_player, district, round):
         return round.get_player_by_character('Bishop') != victim_player \
                and district.name != 'Keep' \
                and len(victim_player.city) < 8 \
-               and player.gold >= district.cost - 1
+               and player.gold >= Warlord.destroy_cost(victim_player, district)
 
     @staticmethod
     def destroy_district(player, victim_player, district):
         print('The Warlord destroys the', district.name, 'of', victim_player.name)
-        player.gold -= district.cost - 1
+        player.gold -= Warlord.destroy_cost(victim_player, district)
         victim_player.city.remove(district)
 
 class CharacterState(Enum):

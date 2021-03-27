@@ -83,7 +83,7 @@ def create_deck():
             observatory(),
             school_of_magic(),
             library(),
-            # great_wall(),
+            great_wall(),
             university(),
             dragon_gate()
             ]
