@@ -2,6 +2,7 @@ import random
 from abc import ABC, abstractmethod
 
 from character import CharacterState, Assassin, Thief, Magician, ColorCharacter, Merchant, Architect, Warlord
+from color import Color
 
 
 class Player(ABC):
@@ -39,8 +40,27 @@ class Player(ABC):
         for district in self.city:
             if district.color not in colors and district.color is not None:
                 colors.append(district.color)
+
         if len(colors) == 5:
             return True
+
+        if len(colors) == 4 and self.number_of_districts_of_color(Color.PURPLE) >= 2 \
+                and self.has_built('Haunted City'):
+            return True
+
+        return False
+
+    def number_of_districts_of_color(self, color):
+        number = 0
+        for district in self.city:
+            if district.color == color:
+                number += 1
+        return number
+
+    def has_built(self, district_name):
+        for district in self.city:
+            if district.name == district_name:
+                return True
         return False
 
     def draw_district(self, game):
@@ -180,12 +200,6 @@ class RandomPlayer(Player):
             if district.cost <= self.gold and not self.has_built(district.name):
                 affordable.append(district)
         return affordable
-
-    def has_built(self, district_name):
-        for district in self.city:
-            if district.name == district_name:
-                return True
-        return False
 
 
 def random_boolean():
