@@ -50,7 +50,7 @@ class Game:
         if len(self.players_with_max_points()) > 1:
             players_with_max_city_value = self.players_with_max_city_value(players_with_max_points)
             if len(players_with_max_city_value) > 1:
-                players_with_max_gold = self.players_with_max_city_value(players_with_max_city_value)
+                players_with_max_gold = self.players_with_max_gold(players_with_max_city_value)
                 if len(players_with_max_gold) > 1:
                     return players_with_max_gold
                 else:
