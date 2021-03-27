@@ -106,7 +106,7 @@ def monastery(): return District('Monastery', 3, Color.BLUE)
 def cathedral(): return District('Cathedral', 5, Color.BLUE)
 
 
-def watch_tower(): return District('Watch tower', 1, Color.RED)
+def watch_tower(): return District('Watch Tower', 1, Color.RED)
 def prison(): return District('Prison', 2, Color.RED)
 def battlefield(): return District('Battlefield', 3, Color.RED)
 def fortress(): return District('Fortress', 5, Color.RED)

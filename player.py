@@ -33,11 +33,10 @@ class RandomPlayer(Player):
             print(self.name, 'takes two gold')
             self.gold += 2
         else:
-            district1 = game.district_deck.pop()
-            district2 = game.district_deck.pop()
-            print(self.name, 'grabs two districts and keeps the', district1.name)
-            self.hand.append(district1)
-            game.district_deck.insert(0, district2)
+            self.draw_districts(game)
+
+        if random_boolean() and self.buildable_districts():
+            self.build_district()
 
     def murder(self, round):
         victim = None
@@ -54,6 +53,36 @@ class RandomPlayer(Player):
             victim = random.choice(list(round.character_state.keys()))
         print(self.name, 'robs the', victim.name())
         round.robbed_character = victim
+
+    def take_gold(self):
+        self.gold += 2
+
+    def draw_districts(self, game):
+        district1 = game.district_deck.pop()
+        district2 = game.district_deck.pop()
+        print(self.name, 'grabs two districts and keeps the', district1.name)
+        self.hand.append(district1)
+        game.district_deck.insert(0, district2)
+
+    def buildable_districts(self):
+        affordable = []
+        for district in self.hand:
+            if district.cost <= self.gold and not self.has_built(district.name):
+                affordable.append(district)
+        return affordable
+
+    def has_built(self, district_name):
+        for district in self.city:
+            if district.name == district_name:
+                return True
+        return False
+
+    def build_district(self):
+        district = random.choice(self.buildable_districts())
+        self.hand.remove(district)
+        print(self.name, 'builds a', district.name)
+        self.city.append(district)
+        self.gold -= district.cost
 
 
 def random_boolean():
