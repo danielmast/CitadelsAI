@@ -190,9 +190,19 @@ class RandomPlayer(Player):
         self.gold += 2
 
     def draw_districts(self, game):
-        district1 = self.draw_district(game)
-        self.draw_district(game)
-        self.discard_district(game, district1)
+        drawn = []
+        draw_number = 2
+
+        if self.has_built('Observatory'):
+            draw_number = 3
+
+        for i in range(0, draw_number):
+            drawn.append(self.draw_district(game))
+        keep = random.choice(drawn)
+
+        drawn.remove(keep)
+        for district in drawn:
+            self.discard_district(game, district)
 
     def buildable_districts(self):
         affordable = []
