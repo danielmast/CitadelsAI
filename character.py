@@ -106,6 +106,7 @@ class Warlord(ColorCharacter):
     @staticmethod
     def can_destroy_district(player, victim_player, district, round):
         return round.get_player_by_character('Bishop') != victim_player \
+               and district.name != 'Keep' \
                and len(victim_player.city) < 8 \
                and player.gold >= district.cost - 1
 
