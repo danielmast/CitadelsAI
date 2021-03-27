@@ -46,30 +46,11 @@ class Game:
         return False
 
     def winner(self):
-        max_points = -1
-        max_city_value = -1
-        max_gold = -1
-        for player in self.players:
-            if player.points(self) > max_points:
-                max_points = player.points(self)
-                if player.city_value() > max_city_value:
-                    max_city_value = player.city_value()
-                    if player.gold > max_gold:
-                        max_gold = player.gold
-
-        players_with_max_points = []
-        players_with_max_city_value = []
-        players_with_max_gold = []
-        for player in self.players:
-            if player.points(self) == max_points:
-                players_with_max_points.append(player)
-                if player.city_value() == max_city_value:
-                    players_with_max_city_value.append(player)
-                    if player.gold == max_gold:
-                        players_with_max_gold.append(player)
-
-        if len(players_with_max_points) > 1:
+        players_with_max_points = self.players_with_max_points()
+        if len(self.players_with_max_points()) > 1:
+            players_with_max_city_value = self.players_with_max_city_value(players_with_max_points)
             if len(players_with_max_city_value) > 1:
+                players_with_max_gold = self.players_with_max_city_value(players_with_max_city_value)
                 if len(players_with_max_gold) > 1:
                     return players_with_max_gold
                 else:
@@ -78,3 +59,43 @@ class Game:
                 return players_with_max_city_value[0]
         else:
             return players_with_max_points[0]
+
+    def players_with_max_points(self):
+        players = self.players
+        max_points = -1
+        for player in players:
+            if player.points(self) > max_points:
+                max_points = player.points(self)
+
+        players_with_max_points = []
+        for player in players:
+            if player.points(self) == max_points:
+                players_with_max_points.append(player)
+
+        return players_with_max_points
+
+    def players_with_max_city_value(self, players):
+        max_city_value = -1
+        for player in players:
+            if player.city_value() > max_city_value:
+                max_city_value = player.city_value()
+
+        players_with_max_city_value = []
+        for player in players:
+            if player.city_value() == max_city_value:
+                players_with_max_city_value.append(player)
+
+        return players_with_max_city_value
+
+    def players_with_max_gold(self, players):
+        max_gold = -1
+        for player in players:
+            if player.gold > max_gold:
+                max_gold = player.gold
+
+        players_with_max_gold = []
+        for player in players:
+            if player.gold == max_gold:
+                players_with_max_gold.append(player)
+
+        return players_with_max_gold
