@@ -54,6 +54,10 @@ class Round:
         for c, state in self.character_state.items():
             if isinstance(state, Player):
                 self.current_player = state
+
+                if c.name() == 'King':
+                    self.game.next_crown_player = self.current_player
+
                 if self.murdered_character == c:
                     print(self.current_player.name, 'skips a round because his character (', c.name(), ') was murdered')
                     continue
@@ -62,10 +66,6 @@ class Round:
                     print(self.current_player.name, 'was robbed and loses his gold')
                     self.get_player_by_character('Thief').gold += self.current_player.gold
                     self.current_player.gold = 0
-
-                if c.name() == 'King':
-                    print(self.current_player.name, 'receives the crown next round')
-                    self.game.next_crown_player = self.current_player
 
                 print(self.current_player.name, 'plays')
                 self.current_player.play_turn(self.game, self, c)
