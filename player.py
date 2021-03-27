@@ -69,6 +69,16 @@ class Player(ABC):
         self.hand.append(district)
         return district
 
+    def allowed_to_draw_number(self):
+        if self.has_built('Observatory'):
+            return 3
+        return 2
+
+    def allowed_to_keep_number(self):
+        if self.has_built('Library'):
+            return 2
+        return 1
+
     def discard_district(self, game, district):
         print(self.name, 'discards a district')
         self.hand.remove(district)
@@ -191,18 +201,13 @@ class RandomPlayer(Player):
 
     def draw_districts(self, game):
         drawn = []
-        draw_number = 2
-
-        if self.has_built('Observatory'):
-            draw_number = 3
-
-        for i in range(0, draw_number):
+        for i in range(0, min(len(game.district_deck), self.allowed_to_draw_number())):
             drawn.append(self.draw_district(game))
-        keep = random.choice(drawn)
 
-        drawn.remove(keep)
-        for district in drawn:
-            self.discard_district(game, district)
+        for i in range(0, min(len(drawn), self.allowed_to_draw_number() - self.allowed_to_keep_number())):
+            d = random.choice(drawn)
+            drawn.remove(d)
+            self.discard_district(game, d)
 
     def buildable_districts(self):
         affordable = []
