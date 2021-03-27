@@ -18,6 +18,31 @@ class Player(ABC):
     def play_turn(self, game, round, character):
         raise Exception('Should be implemented by sub class')
 
+    def points(self, game):
+        points = self.city_value()
+        if self.has_districts_in_each_color():
+            points += 3
+        if game.first_finished_player == self:
+            points += 4
+        elif len(self.city) == 8:
+            points += 2
+        return points
+
+    def city_value(self):
+        value = 0
+        for district in self.city:
+            value += district.value
+        return value
+
+    def has_districts_in_each_color(self):
+        colors = []
+        for district in self.city:
+            if district.color not in colors and district.color is not None:
+                colors.append(district.color)
+        if len(colors) == 5:
+            return True
+        return False
+
 
 class RandomPlayer(Player):
     def choose_character(self, game, round):
@@ -29,7 +54,7 @@ class RandomPlayer(Player):
         elif character.name() == 'Thief':
             self.rob(round)
 
-        if random_boolean():
+        if random_boolean() or len(game.district_deck) < 2:
             print(self.name, 'takes two gold')
             self.gold += 2
         else:
