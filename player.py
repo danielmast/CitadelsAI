@@ -1,7 +1,7 @@
 import random
 from abc import ABC, abstractmethod
 
-from character import CharacterState, Assassin, Thief, Magician
+from character import CharacterState, Assassin, Thief, Magician, ColorCharacter
 
 
 class Player(ABC):
@@ -20,7 +20,7 @@ class Player(ABC):
 
     def points(self, game):
         points = self.city_value()
-        if self.has_districts_in_each_color():
+        if self.has_districts_of_each_color():
             points += 3
         if game.first_finished_player == self:
             points += 4
@@ -34,7 +34,7 @@ class Player(ABC):
             value += district.value
         return value
 
-    def has_districts_in_each_color(self):
+    def has_districts_of_each_color(self):
         colors = []
         for district in self.city:
             if district.color not in colors and district.color is not None:
@@ -49,6 +49,8 @@ class RandomPlayer(Player):
         return random.choice(round.get_deck_characters())
 
     def play_turn(self, game, round, character):
+        has_received_city_gold = False
+
         if character.name() == 'Assassin':
             self.murder(round)
         elif character.name() == 'Thief':
@@ -59,6 +61,10 @@ class RandomPlayer(Player):
                 self.exchange_hands(game)
             elif action == 1 and len(self.hand) > 0:
                 self.discard_and_draw(game)
+        elif isinstance(character, ColorCharacter):
+            if random_boolean():
+                character.receive_city_gold(self)
+                has_received_city_gold = True
 
         if random_boolean() or len(game.district_deck) < 2:
             print(self.name, 'takes 2 gold')
@@ -68,6 +74,10 @@ class RandomPlayer(Player):
 
         if random_boolean() and self.buildable_districts():
             self.build_district()
+
+        if isinstance(character, ColorCharacter):
+            if not has_received_city_gold:
+                character.receive_city_gold(self)
 
     def murder(self, round):
         victim = None

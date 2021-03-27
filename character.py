@@ -9,6 +9,18 @@ class Character(ABC):
         return type(self).__name__
 
 
+class ColorCharacter(Character):
+    def receive_city_gold(self, player):
+        gold = 0
+        for district in player.city:
+            if district.color == self.color:
+                gold += 1
+
+        if gold > 0:
+            print('The', self.name(), 'receives', gold, 'gold from the', self.color.name, 'districts in his city')
+            player.gold += gold
+
+
 class Assassin(Character):
     def __init__(self):
         self.color = Color.NONE
@@ -51,17 +63,17 @@ class Magician(Character):
             player.hand.append(game.district_deck.pop())
 
 
-class King(Character):
+class King(ColorCharacter):
     def __init__(self):
         self.color = Color.YELLOW
 
 
-class Bishop(Character):
+class Bishop(ColorCharacter):
     def __init__(self):
         self.color = Color.BLUE
 
 
-class Merchant(Character):
+class Merchant(ColorCharacter):
     def __init__(self):
         self.color = Color.GREEN
 
@@ -71,7 +83,7 @@ class Architect(Character):
         self.color = Color.NONE
 
 
-class Warlord(Character):
+class Warlord(ColorCharacter):
     def __init__(self):
         self.color = Color.RED
 
