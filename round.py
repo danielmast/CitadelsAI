@@ -21,7 +21,7 @@ class Round:
 
         print(self.crown_player.name, 'has the crown')
 
-        print('Put one character face down:')
+        print('Put 1 character face down:')
         face_down = random.choice(self.get_deck_characters())
         self.character_state[face_down] = CharacterState.FACE_DOWN
         print(face_down.name())

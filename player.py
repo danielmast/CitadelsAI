@@ -84,7 +84,7 @@ class Player(ABC):
         self.hand.remove(district)
         game.district_deck.insert(0, district)
 
-    def take_two_gold(self):
+    def take_2_gold(self):
         print(self.name, 'takes 2 gold')
         self.gold += 2
 
@@ -118,7 +118,7 @@ class RandomPlayer(Player):
                 has_received_city_gold = True
 
         if random_boolean() or len(game.district_deck) < 2:
-            self.take_two_gold()
+            self.take_2_gold()
         else:
             self.draw_districts(game)
 
