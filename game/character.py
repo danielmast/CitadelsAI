@@ -1,7 +1,7 @@
 from abc import ABC
 from enum import Enum
 
-from color import Color
+from game.color import Color
 
 
 class Character(ABC):

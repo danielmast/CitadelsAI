@@ -1,8 +1,8 @@
 import random
 
-import district
-from round import Round
-import player
+# import district
+from game import district, player
+from game.round import Round
 
 
 class Game:

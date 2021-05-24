@@ -1,9 +1,9 @@
 import random
 from enum import Enum
 
-import character
-from player import Player, face_up_count
-from character import CharacterState
+from game import character
+from game.player import Player, face_up_count
+from game.character import CharacterState
 
 
 class Round:

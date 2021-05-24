@@ -1,8 +1,8 @@
 import random
 from abc import ABC, abstractmethod
 
-from character import CharacterState, Assassin, Thief, Magician, ColorCharacter, Merchant, Architect, Warlord
-from color import Color
+from game.character import CharacterState, Assassin, Thief, Magician, ColorCharacter, Merchant, Architect, Warlord
+from game.color import Color
 
 
 class Player(ABC):

@@ -1,6 +1,6 @@
 import random
 
-from color import Color
+from game.color import Color
 
 
 class District:
