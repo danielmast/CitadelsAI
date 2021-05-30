@@ -79,8 +79,13 @@ class Round:
         else:
             self.current_player = next_player
 
-    def player_turns(self, until_agent_is_up=False):
+    def player_turns(self, until_agent_is_up=False, continued=False):
         for c, state in self.character_state.items():
+            if continued:
+                if self.current_player == state:
+                    continued = False
+                continue
+
             if isinstance(state, Player):
                 self.current_player = state
 

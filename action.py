@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class Action(Enum):
+    # Phase: CHOOSE_CHARACTERS
     CHOOSE_ASSASSIN = 0
     CHOOSE_THIEF = 1
     CHOOSE_MAGICIAN = 2
@@ -10,4 +11,7 @@ class Action(Enum):
     CHOOSE_MERCHANT = 5
     CHOOSE_ARCHITECT = 6
     CHOOSE_WARLORD = 7
-    TAKE_TWO_GOLD = 8
+
+    # Phase: PLAY_TURN
+    DO_NOTHING = 8
+    TAKE_TWO_GOLD = 9
