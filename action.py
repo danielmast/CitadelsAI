@@ -1,0 +1,13 @@
+from enum import Enum
+
+
+class Action(Enum):
+    CHOOSE_ASSASSIN = 0
+    CHOOSE_THIEF = 1
+    CHOOSE_MAGICIAN = 2
+    CHOOSE_KING = 3
+    CHOOSE_BISHOP = 4
+    CHOOSE_MERCHANT = 5
+    CHOOSE_ARCHITECT = 6
+    CHOOSE_WARLORD = 7
+    TAKE_TWO_GOLD = 8

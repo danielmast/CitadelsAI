@@ -10,10 +10,11 @@ class Game:
         self.player_count = player_count
         self.players = player.create_players(self, player_count)
         self.district_deck = district.create_deck()
+        self.round = None
         self.next_crown_player = random.choice(self.players)
         self.first_finished_player = None
 
-    def start(self):
+    def start_auto(self):
         print(self.player_count, 'players')
         for p in self.players:
             p.gold = 2
@@ -24,7 +25,7 @@ class Game:
         round_number = 1
         while not self.end_of_game():
             r = Round(self, round_number, self.next_crown_player)
-            r.start()
+            r.start_auto()
             round_number += 1
         print('End of game')
 
@@ -38,6 +39,38 @@ class Game:
                 print('Winner:', w.name)
         else:
             print('Winner:', winner.name)
+
+    def start(self):
+        print(self.player_count, 'players')
+        for p in self.players:
+            p.gold = 2
+            for i in range(4):
+                p.hand.append(self.district_deck.pop())
+
+        print('Start game')
+        self.set_next_round()
+
+    def set_next_round(self):
+        if self.round is None:
+            round_number = 1
+        else:
+            round_number = self.round.number + 1
+        self.round = Round(self, round_number, self.next_crown_player)
+
+    def end(self):
+        print('End of game')
+
+        print('Points:')
+        for player in self.players:
+            print(player.name, ':', player.points(self))
+
+        winner = self.winner()
+        if isinstance(winner, list):
+            for w in winner:
+                print('Winner:', w.name)
+        else:
+            print('Winner:', winner.name)
+
 
     def end_of_game(self):
         for player in self.players:

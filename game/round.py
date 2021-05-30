@@ -2,7 +2,7 @@ import random
 from enum import Enum
 
 from game import character
-from game.player import Player, face_up_count
+from game.player import Player, face_up_count, AgentPlayer
 from game.character import CharacterState
 
 
@@ -16,6 +16,25 @@ class Round:
         self.murdered_character = None
         self.robbed_character = None
 
+    def start_auto(self):
+        print('Start round', self.number)
+
+        print(self.crown_player.name, 'has the crown')
+
+        print('Put 1 character face down:')
+        face_down = random.choice(self.get_deck_characters())
+        self.set_character_state(face_down, CharacterState.FACE_DOWN)
+        print(face_down.name())
+
+        print('Face up characters:')
+        for i in range(face_up_count(self.game.player_count)):
+            face_up = random.choice(self.get_deck_characters())
+            self.set_character_state(face_up, CharacterState.FACE_UP)
+            print(face_up.name())
+
+        self.choose_characters()
+        self.player_turns()
+
     def start(self):
         print('Start round', self.number)
 
@@ -23,24 +42,34 @@ class Round:
 
         print('Put 1 character face down:')
         face_down = random.choice(self.get_deck_characters())
-        self.character_state[face_down] = CharacterState.FACE_DOWN
+        self.set_character_state(face_down, CharacterState.FACE_DOWN)
         print(face_down.name())
 
         print('Face up characters:')
         for i in range(face_up_count(self.game.player_count)):
             face_up = random.choice(self.get_deck_characters())
-            self.character_state[face_up] = CharacterState.FACE_UP
+            self.set_character_state(face_up, CharacterState.FACE_UP)
             print(face_up.name())
 
-        self.choose_characters()
-        self.player_turns()
-
-    def choose_characters(self):
+    def choose_characters(self, until_agent_is_up=False):
         while self.current_player is not None:
+            if until_agent_is_up and isinstance(self.current_player, AgentPlayer):
+                return
+
             c = self.current_player.choose_character(self.game, self)
             print(self.current_player.name, 'chooses', c.name())
-            self.character_state[c] = self.current_player
+            self.set_character_state(c, self.current_player)
             self.next_player()
+
+    def choose_character(self, player, c):
+        if player != self.current_player:
+            raise Exception('Player choosing character is not current player')
+        if self.get_character_state(c) != CharacterState.DECK:
+            raise Exception('Player cannot choose character that is not in deck')
+
+        print(self.current_player.name, 'chooses', c.name())
+        self.set_character_state(c, self.current_player)
+        self.next_player()
 
     def next_player(self):
         current_index = self.game.players.index(self.current_player)
@@ -50,7 +79,7 @@ class Round:
         else:
             self.current_player = next_player
 
-    def player_turns(self):
+    def player_turns(self, until_agent_is_up=False):
         for c, state in self.character_state.items():
             if isinstance(state, Player):
                 self.current_player = state
@@ -68,9 +97,30 @@ class Round:
                     self.current_player.gold = 0
 
                 print(self.current_player.name, 'plays')
+
+                if until_agent_is_up and isinstance(self.current_player, AgentPlayer):
+                    return
+
                 self.current_player.play_turn(self.game, self, c)
-                if len(self.current_player.city) >= 8 and self.game.first_finished_player is None:
-                    self.game.first_finished_player = self.current_player
+                self.end_player_turn()
+
+    def end_player_turn(self):
+        if len(self.current_player.city) >= 8 and self.game.first_finished_player is None:
+            self.game.first_finished_player = self.current_player
+
+    def get_character_state(self, character):
+        key = None
+        for c in self.character_state.keys():
+            if c.name() == character.name():
+                key = c
+        return self.character_state[key]
+
+    def set_character_state(self, character, state):
+        key = None
+        for c in self.character_state.keys():
+            if c.name() == character.name():
+                key = c
+        self.character_state[key] = state
 
     def get_deck_characters(self):
         deck = []

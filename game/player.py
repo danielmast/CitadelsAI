@@ -1,6 +1,8 @@
 import random
 from abc import ABC, abstractmethod
 
+from stable_baselines3 import A2C
+
 from game.character import CharacterState, Assassin, Thief, Magician, ColorCharacter, Merchant, Architect, Warlord
 from game.color import Color
 
@@ -16,6 +18,7 @@ class Player(ABC):
     def choose_character(self, game, round):
         raise Exception('Should be implemented by sub class')
 
+    @abstractmethod
     def play_turn(self, game, round, character):
         raise Exception('Should be implemented by sub class')
 
@@ -93,6 +96,19 @@ class Player(ABC):
         print(self.name, 'builds a', district.name)
         self.city.append(district)
         self.gold -= district.cost
+
+
+class AgentPlayer(Player):
+    def __init__(self, name, model):
+        super(AgentPlayer, self).__init__(name)
+        self.model = model
+
+    def choose_character(self, game, round):
+        return random.choice(round.get_deck_characters())
+
+    def play_turn(self, game, round, character):
+        print('I\'m a lazy agent doing nothing yet')
+        pass
 
 
 class RandomPlayer(Player):
@@ -223,9 +239,15 @@ def random_boolean():
 
 def create_players(game, player_count):
     players = []
-    for p in range(1, player_count + 1):
+    players.append(create_agent_player())
+    for p in range(2, player_count + 1):
         players.append(RandomPlayer('Player {}'.format(p)))
     return players
+
+
+def create_agent_player():
+    model = None
+    return AgentPlayer('Agent', model)
 
 
 def face_up_count(player_count):
