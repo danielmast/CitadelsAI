@@ -4,12 +4,14 @@ from enum import Enum
 from game import character
 from game.player import Player, face_up_count, AgentPlayer
 from game.character import CharacterState
+from phase import Phase
 
 
 class Round:
     def __init__(self, game, number, crown_player):
         self.game = game
         self.number = number
+        self.phase = Phase.CHOOSE_CHARACTERS
         self.crown_player = crown_player
         self.current_player = crown_player
         self.character_state = create_character_state()
@@ -52,6 +54,7 @@ class Round:
             print(face_up.name())
 
     def choose_characters(self, until_agent_is_up=False):
+        self.phase = Phase.CHOOSE_CHARACTERS
         while self.current_player is not None:
             if until_agent_is_up and isinstance(self.current_player, AgentPlayer):
                 return
@@ -80,6 +83,7 @@ class Round:
             self.current_player = next_player
 
     def player_turns(self, until_agent_is_up=False, continued=False):
+        self.phase = Phase.PLAYER_TURNS
         for c, state in self.character_state.items():
             if continued:
                 if self.current_player == state:
@@ -110,6 +114,7 @@ class Round:
                 self.end_player_turn()
 
     def end_player_turn(self):
+        print(self.current_player.name, 'ends turn')
         if len(self.current_player.city) >= 8 and self.game.first_finished_player is None:
             self.game.first_finished_player = self.current_player
 

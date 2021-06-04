@@ -11,9 +11,9 @@ env = CitadelsEnv()
 # fake_model.learn(total_timesteps=1000)
 
 # # Learn
-model = A2C('MlpPolicy', env, verbose=1)
-# model = PPO('MlpPolicy', env, verbose=1)
-model.learn(total_timesteps=100000)
+# model = A2C('MlpPolicy', env, verbose=1)
+model = PPO('MlpPolicy', env, verbose=1)
+model.learn(total_timesteps=1000000)
 
 # # Play
 obs = env.reset()
