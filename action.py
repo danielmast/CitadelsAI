@@ -1,20 +1,10 @@
 from enum import Enum
 
 
-class Action(Enum):
-    # Phase: CHOOSE_CHARACTERS
-    CHOOSE_ASSASSIN = 0
-    CHOOSE_THIEF = 1
-    CHOOSE_MAGICIAN = 2
-    CHOOSE_KING = 3
-    CHOOSE_BISHOP = 4
-    CHOOSE_MERCHANT = 5
-    CHOOSE_ARCHITECT = 6
-    CHOOSE_WARLORD = 7
-
-    # Phase: PLAY_TURN
-    DO_NOTHING = 8
-    TAKE_TWO_GOLD = 9
+class Action:
+    def __init__(self, a):
+        self.verb = ActionVerb(a[0])
+        self.object = ActionObject(a[1])
 
 
 class ActionVerb(Enum):
@@ -31,7 +21,7 @@ class ActionVerb(Enum):
     DISCARD = 5
     DESTROY = 6  # Warlord only
 
-    # Other actions
+    # Other actions (without object)
     TAKE_TWO_GOLD = 7
     DRAW_DISTRICTS = 8
     RECEIVE_CITY_GOLD = 9
@@ -53,12 +43,12 @@ class ActionObject(Enum):
     MERCHANT = 6
     ARCHITECT = 7
     WARLORD = 8
-    
+
     # Players
     PLAYER_2 = 9
     PLAYER_3 = 10
     PLAYER_4 = 11
-    
+
     # Districts
     TAVERN_1 = 12
     TAVERN_2 = 13
@@ -130,3 +120,12 @@ class ActionObject(Enum):
     GREAT_WALL = 75
     UNIVERSITY = 76
     DRAGON_GATE = 77
+
+    def is_character(self):
+        return 1 <= self.value <= 8
+
+    def is_player(self):
+        return 9 <= self.value <= 11
+
+    def is_district(self):
+        return 12 <= self.value <= 77

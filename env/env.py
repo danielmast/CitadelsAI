@@ -1,7 +1,7 @@
 import gym
-from gym.spaces import Discrete, MultiDiscrete
+from gym.spaces import MultiDiscrete
 
-from action import Action
+from action import Action, ActionVerb, ActionObject
 from game.character import Assassin, Thief, Magician, King, Bishop, Merchant, Architect, Warlord, CharacterState
 from game.game import Game
 from phase import Phase
@@ -10,40 +10,41 @@ from phase import Phase
 class CitadelsEnv(gym.Env):
 
     def __init__(self):
-        self.action_space = Discrete(len(Action))
+        self.action_space = MultiDiscrete([len(ActionVerb), len(ActionObject)])
         self.observation_space = MultiDiscrete([2] + (8 * [2]))
 
     def step(self, a):
         action = Action(a)
 
         if self.phase == Phase.CHOOSE_CHARACTERS:
-            if a > 7:
-                print('Invalid action: Agent did not choose a character')
+            if action.verb != ActionVerb.CHOOSE or not action.object.is_character():
+                print('Invalid action: Agent did not choose a character:', a)
                 return self.get_state(), -100, False, {}
             return self.step_choose_characters(action)
         elif self.phase == Phase.PLAYER_TURNS:
-            if a <= 7:
-                print('Invalid action: Agent did not do a player turn action')
+            if (action.verb != ActionVerb.TAKE_TWO_GOLD and action.verb != ActionVerb.END_TURN) \
+                    or action.object != ActionObject.NONE:
+                print('Invalid action: Agent did not do a (currently supported) player turn action, ', a)
                 return self.get_state(), -100, False, {}
             return self.step_player_turns(action)
 
     def step_choose_characters(self, action):
         character = None
-        if action == Action.CHOOSE_ASSASSIN:
+        if action.object == ActionObject.ASSASSIN:
             character = Assassin()
-        elif action == Action.CHOOSE_THIEF:
+        elif action.object == ActionObject.THIEF:
             character = Thief()
-        elif action == Action.CHOOSE_MAGICIAN:
+        elif action.object == ActionObject.MAGICIAN:
             character = Magician()
-        elif action == Action.CHOOSE_KING:
+        elif action.object == ActionObject.KING:
             character = King()
-        elif action == Action.CHOOSE_BISHOP:
+        elif action.object == ActionObject.BISHOP:
             character = Bishop()
-        elif action == Action.CHOOSE_MERCHANT:
+        elif action.object == ActionObject.MERCHANT:
             character = Merchant()
-        elif action == Action.CHOOSE_ARCHITECT:
+        elif action.object == ActionObject.ARCHITECT:
             character = Architect()
-        elif action == Action.CHOOSE_WARLORD:
+        elif action.object == ActionObject.WARLORD:
             character = Warlord()
 
         if not self.game.round.get_character_state(character) == CharacterState.DECK:
@@ -61,24 +62,22 @@ class CitadelsEnv(gym.Env):
 
     def step_player_turns(self, action):
         reward = 0
-        if action == Action.DO_NOTHING:
-            reward = -5
-        elif action == Action.TAKE_TWO_GOLD:
+        if action.verb == ActionVerb.END_TURN:
+            self.game.round.end_player_turn()
+            self.game.round.player_turns(continued=True)
+
+            if self.game.end_of_game():
+                self.game.end()
+                return self.get_state(), reward, True, {}
+
+            self.game.set_next_round()
+            self.game.round.start()
+            self.phase = Phase.CHOOSE_CHARACTERS
+
+            self.game.round.choose_characters(until_agent_is_up=True)
+        elif action.verb == ActionVerb.TAKE_TWO_GOLD:
             self.game.round.current_player.take_2_gold()
             reward = 10
-
-        self.game.round.end_player_turn()
-        self.game.round.player_turns(continued=True)
-
-        if self.game.end_of_game():
-            self.game.end()
-            return self.get_state(), reward, True, {}
-
-        self.game.set_next_round()
-        self.game.round.start()
-        self.phase = Phase.CHOOSE_CHARACTERS
-
-        self.game.round.choose_characters(until_agent_is_up=True)
 
         return self.get_state(), reward, False, {}
 
