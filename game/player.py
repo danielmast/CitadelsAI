@@ -175,7 +175,7 @@ class RandomPlayer(Player):
     @staticmethod
     def murder(round):
         victim = None
-        while victim is None or isinstance(victim, Assassin) or round.game.character_state[victim] == CharacterState.FACE_UP:
+        while victim is None or isinstance(victim, Assassin) or round.game.character_state[victim].state == CharacterState.FACE_UP:
             victim = random.choice(list(round.game.character_state.keys()))
         Assassin.murder(victim, round)
 
@@ -183,7 +183,7 @@ class RandomPlayer(Player):
     def rob(round):
         victim = None
         while victim is None or isinstance(victim, Assassin) or isinstance(victim, Thief) \
-                or round.game.character_state[victim] == CharacterState.FACE_UP\
+                or round.game.character_state[victim].state == CharacterState.FACE_UP\
                 or victim == round.murdered_character:
             victim = random.choice(list(round.game.character_state.keys()))
         Thief.rob(victim, round)

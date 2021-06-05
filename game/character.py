@@ -122,7 +122,21 @@ class Warlord(ColorCharacter):
         player.gold -= Warlord.destroy_cost(victim_player, district)
         victim_player.city.remove(district)
 
-class CharacterState(Enum):
+
+class CharacterState:
     DECK = 1
     FACE_UP = 2
     FACE_DOWN = 3
+    CHOSEN = 4
+
+    def __init__(self):
+        self.state = CharacterState.DECK
+        self.player = None
+
+    def reset(self):
+        self.state = CharacterState.DECK
+        self.player = None
+
+    def set_player(self, player):
+        self.state = CharacterState.CHOSEN
+        self.player = player

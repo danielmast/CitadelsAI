@@ -49,7 +49,7 @@ class CitadelsEnv(gym.Env):
         elif action.object == ActionObject.WARLORD:
             character = self.game.get_character('Warlord')
 
-        if not self.game.character_state[character] == CharacterState.DECK:
+        if not self.game.character_state[character].state == CharacterState.DECK:
             print('Invalid action: Agent tried to choose character not in deck')
             return self.get_state(), -100, False, {}
 
@@ -105,7 +105,7 @@ class CitadelsEnv(gym.Env):
         state = [self.game.round.phase.value]
 
         for c, c_state in self.game.character_state.items():
-            if self.game.round.phase == Phase.CHOOSE_CHARACTERS and c_state == CharacterState.DECK:
+            if self.game.round.phase == Phase.CHOOSE_CHARACTERS and c_state.state == CharacterState.DECK:
                 state.append(1)
             else:
                 state.append(0)

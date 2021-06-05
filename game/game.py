@@ -143,12 +143,12 @@ class Game:
 
 def create_character_state():
     return {
-        character.Assassin(): CharacterState.DECK,
-        character.Thief(): CharacterState.DECK,
-        character.Magician(): CharacterState.DECK,
-        character.King(): CharacterState.DECK,
-        character.Bishop(): CharacterState.DECK,
-        character.Merchant(): CharacterState.DECK,
-        character.Architect(): CharacterState.DECK,
-        character.Warlord(): CharacterState.DECK
+        character.Assassin(): CharacterState(),
+        character.Thief(): CharacterState(),
+        character.Magician(): CharacterState(),
+        character.King(): CharacterState(),
+        character.Bishop(): CharacterState(),
+        character.Merchant(): CharacterState(),
+        character.Architect(): CharacterState(),
+        character.Warlord(): CharacterState()
     }
