@@ -111,7 +111,7 @@ class Warlord(ColorCharacter):
 
     @staticmethod
     def can_destroy_district(player, victim_player, district, round):
-        return round.get_player_by_character('Bishop') != victim_player \
+        return round.get_player_by_character(round.game.get_character('Bishop')) != victim_player \
                and district.name != 'Keep' \
                and len(victim_player.city) < 8 \
                and player.gold >= Warlord.destroy_cost(victim_player, district)
@@ -126,7 +126,3 @@ class CharacterState(Enum):
     DECK = 1
     FACE_UP = 2
     FACE_DOWN = 3
-
-
-def characters():
-    return [Assassin(), Thief(), Magician(), King(), Bishop(), Merchant(), Architect(), Warlord()]

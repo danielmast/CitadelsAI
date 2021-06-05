@@ -159,7 +159,7 @@ class RandomPlayer(Player):
 
         if isinstance(character, Warlord) and random_boolean():
             victim_player = None
-            while victim_player is None or victim_player == round.get_player_by_character('Bishop'):
+            while victim_player is None or victim_player == round.get_player_by_character(game.get_character('Bishop')):
                 victim_player = self.random_other_player(game)
 
             victim_city = victim_player.city.copy()
@@ -175,17 +175,17 @@ class RandomPlayer(Player):
     @staticmethod
     def murder(round):
         victim = None
-        while victim is None or victim.name() == 'Assassin' or round.character_state[victim] == CharacterState.FACE_UP:
-            victim = random.choice(list(round.character_state.keys()))
+        while victim is None or isinstance(victim, Assassin) or round.game.character_state[victim] == CharacterState.FACE_UP:
+            victim = random.choice(list(round.game.character_state.keys()))
         Assassin.murder(victim, round)
 
     @staticmethod
     def rob(round):
         victim = None
-        while victim is None or victim.name() == 'Assassin' or victim.name() == 'Thief' \
-                or round.character_state[victim] == CharacterState.FACE_UP\
+        while victim is None or isinstance(victim, Assassin) or isinstance(victim, Thief) \
+                or round.game.character_state[victim] == CharacterState.FACE_UP\
                 or victim == round.murdered_character:
-            victim = random.choice(list(round.character_state.keys()))
+            victim = random.choice(list(round.game.character_state.keys()))
         Thief.rob(victim, round)
 
     def exchange_hands(self, game):

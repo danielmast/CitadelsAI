@@ -23,7 +23,7 @@ class ActionVerb(Enum):
 
     # Other actions (without object)
     TAKE_TWO_GOLD = 7
-    DRAW_DISTRICTS = 8
+    DRAW_TWO_DISTRICTS = 8
     RECEIVE_CITY_GOLD = 9
     DISCARD_AND_DRAW = 10  # Magician only
     RECEIVE_EXTRA_GOLD = 11  # Merchant only

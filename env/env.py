@@ -33,23 +33,23 @@ class CitadelsEnv(gym.Env):
     def step_choose_characters(self, action):
         character = None
         if action.object == ActionObject.ASSASSIN:
-            character = Assassin()
+            character = self.game.get_character('Assassin')
         elif action.object == ActionObject.THIEF:
-            character = Thief()
+            character = self.game.get_character('Thief')
         elif action.object == ActionObject.MAGICIAN:
-            character = Magician()
+            character = self.game.get_character('Magician')
         elif action.object == ActionObject.KING:
-            character = King()
+            character = self.game.get_character('King')
         elif action.object == ActionObject.BISHOP:
-            character = Bishop()
+            character = self.game.get_character('Bishop')
         elif action.object == ActionObject.MERCHANT:
-            character = Merchant()
+            character = self.game.get_character('Merchant')
         elif action.object == ActionObject.ARCHITECT:
-            character = Architect()
+            character = self.game.get_character('Architect')
         elif action.object == ActionObject.WARLORD:
-            character = Warlord()
+            character = self.game.get_character('Warlord')
 
-        if not self.game.round.get_character_state(character) == CharacterState.DECK:
+        if not self.game.character_state[character] == CharacterState.DECK:
             print('Invalid action: Agent tried to choose character not in deck')
             return self.get_state(), -100, False, {}
 
@@ -74,7 +74,7 @@ class CitadelsEnv(gym.Env):
 
     def agent_is_murdered(self):
         return self.game.round.murdered_character is not None and \
-               isinstance(self.game.round.get_player_by_character(self.game.round.murdered_character.name()), AgentPlayer)
+               isinstance(self.game.round.get_player_by_character(self.game.round.murdered_character), AgentPlayer)
 
     def step_player_turns(self, action):
         reward = 0
@@ -104,7 +104,7 @@ class CitadelsEnv(gym.Env):
     def get_state(self):
         state = [self.game.round.phase.value]
 
-        for c, c_state in self.game.round.character_state.items():
+        for c, c_state in self.game.character_state.items():
             if self.game.round.phase == Phase.CHOOSE_CHARACTERS and c_state == CharacterState.DECK:
                 state.append(1)
             else:
