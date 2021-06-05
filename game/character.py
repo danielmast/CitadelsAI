@@ -31,7 +31,7 @@ class CharacterState(Enum):
 class ColorCharacter(Character):
     def receive_city_gold(self, player):
         gold = 0
-        for district in player.city:
+        for district in player.city():
             if district.color == self.color or district.name == 'School of Magic':
                 gold += 1
 
@@ -67,19 +67,16 @@ class Magician(Character):
     @staticmethod
     def exchange_hands(player, victim_player):
         print('The Magician exchanges hands with', victim_player.name)
-        hand = player.hand.copy()
-        player.hand = victim_player.hand
-        victim_player.hand = hand
+        player.exchange_hands(victim_player)
 
     @staticmethod
     def discard_and_draw(player, districts, game):
         print('The Magician discards', len(districts), 'districts and draws', len(districts), 'new districts')
         for district in districts:
-            player.hand.remove(district)
-            game.district_deck.insert(0, district)
+            player.discard_district(game, district)
 
         for i in range(0, len(districts)):
-            player.hand.append(game.district_deck.pop())
+            player.draw_district(game)
 
 
 class King(ColorCharacter):
@@ -111,7 +108,7 @@ class Architect(Character):
         drawn = 0
         for i in range(0, 2):
             if len(game.district_deck) > 0:
-                player.hand.append(game.district_deck.pop())
+                player.draw_district(game)
                 drawn += 1
 
         if drawn > 0:
@@ -132,14 +129,13 @@ class Warlord(ColorCharacter):
     def can_destroy_district(player, victim_player, district, round):
         return round.game.get_character('Bishop').player != victim_player \
                and district.name != 'Keep' \
-               and len(victim_player.city) < 8 \
+               and len(victim_player.city()) < 8 \
                and player.gold >= Warlord.destroy_cost(victim_player, district)
 
     @staticmethod
-    def destroy_district(player, victim_player, district):
+    def destroy_district(game, player, victim_player, district):
         print('The Warlord destroys the', district.name, 'of', victim_player.name)
-        player.gold -= Warlord.destroy_cost(victim_player, district)
-        victim_player.city.remove(district)
+        player.destroy_district(game, victim_player, district)
 
 
 def create_characters():

@@ -1,4 +1,5 @@
 import random
+from enum import Enum
 
 from game.color import Color
 
@@ -14,80 +15,104 @@ class District:
         else:
             self.value = value
 
+        self.state = DistrictState.DECK
+        self.player = None
 
-def create_deck():
-    deck = [tavern(),
-            tavern(),
-            tavern(),
-            tavern(),
-            tavern(),
-            market(),
-            market(),
-            market(),
-            market(),
-            trading_post(),
-            trading_post(),
-            trading_post(),
-            docks(),
-            docks(),
-            docks(),
-            harbor(),
-            harbor(),
-            harbor(),
-            town_hall(),
-            town_hall(),
+    def build(self, player):
+        self.state = DistrictState.BUILT
+        self.player = player
 
-            temple(),
-            temple(),
-            temple(),
-            church(),
-            church(),
-            church(),
-            monastery(),
-            monastery(),
-            monastery(),
-            cathedral(),
-            cathedral(),
+    def put_in_hand(self, player):
+        self.state = DistrictState.IN_HAND
+        self.player = player
 
-            watch_tower(),
-            watch_tower(),
-            watch_tower(),
-            prison(),
-            prison(),
-            prison(),
-            battlefield(),
-            battlefield(),
-            battlefield(),
-            fortress(),
-            fortress(),
+    def discard(self):
+        self.state = DistrictState.DECK
 
-            manor(),
-            manor(),
-            manor(),
-            manor(),
-            manor(),
-            castle(),
-            castle(),
-            castle(),
-            castle(),
-            palace(),
-            palace(),
-            palace(),
 
-            haunted_city(),
-            keep(),
-            keep(),
-            laboratory(),
-            smithy(),
-            graveyard(),
-            observatory(),
-            school_of_magic(),
-            library(),
-            great_wall(),
-            university(),
-            dragon_gate()
-            ]
+class DistrictState(Enum):
+    DECK = 1
+    IN_HAND = 2
+    BUILT = 3
 
+
+def create_districts():
+    return [
+        tavern(),
+        tavern(),
+        tavern(),
+        tavern(),
+        tavern(),
+        market(),
+        market(),
+        market(),
+        market(),
+        trading_post(),
+        trading_post(),
+        trading_post(),
+        docks(),
+        docks(),
+        docks(),
+        harbor(),
+        harbor(),
+        harbor(),
+        town_hall(),
+        town_hall(),
+
+        temple(),
+        temple(),
+        temple(),
+        church(),
+        church(),
+        church(),
+        monastery(),
+        monastery(),
+        monastery(),
+        cathedral(),
+        cathedral(),
+
+        watch_tower(),
+        watch_tower(),
+        watch_tower(),
+        prison(),
+        prison(),
+        prison(),
+        battlefield(),
+        battlefield(),
+        battlefield(),
+        fortress(),
+        fortress(),
+
+        manor(),
+        manor(),
+        manor(),
+        manor(),
+        manor(),
+        castle(),
+        castle(),
+        castle(),
+        castle(),
+        palace(),
+        palace(),
+        palace(),
+
+        haunted_city(),
+        keep(),
+        keep(),
+        laboratory(),
+        smithy(),
+        graveyard(),
+        observatory(),
+        school_of_magic(),
+        library(),
+        great_wall(),
+        university(),
+        dragon_gate()
+    ]
+
+
+def create_deck(districts):
+    deck = districts.copy()
     random.shuffle(deck)
     return deck
 

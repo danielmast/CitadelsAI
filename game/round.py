@@ -117,7 +117,7 @@ class Round:
 
     def end_player_turn(self):
         print(self.current_player.name, 'ends turn')
-        if len(self.current_player.city) >= 8 and self.game.first_finished_player is None:
+        if len(self.current_player.city()) >= 8 and self.game.first_finished_player is None:
             self.game.first_finished_player = self.current_player
 
     def get_deck_characters(self):

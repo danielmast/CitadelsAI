@@ -9,7 +9,8 @@ class Game:
         self.player_count = player_count
         self.players = player.create_players(self, player_count)
         self.characters = character.create_characters()
-        self.district_deck = district.create_deck()
+        self.districts = district.create_districts()
+        self.district_deck = district.create_deck(self.districts)
         self.round = None
         self.next_crown_player = random.choice(self.players)
         self.first_finished_player = None
@@ -19,7 +20,7 @@ class Game:
         for p in self.players:
             p.gold = 2
             for i in range(4):
-                p.hand.append(self.district_deck.pop())
+                p.draw_district(self)
 
         print('Start game')
         round_number = 1
@@ -45,7 +46,7 @@ class Game:
         for p in self.players:
             p.gold = 2
             for i in range(4):
-                p.hand.append(self.district_deck.pop())
+                p.draw_district(self)
 
         print('Start game')
         self.set_next_round()
@@ -74,7 +75,7 @@ class Game:
 
     def end_of_game(self):
         for player in self.players:
-            if len(player.city) >= 8:
+            if len(player.city()) >= 8:
                 return True
         return False
 
