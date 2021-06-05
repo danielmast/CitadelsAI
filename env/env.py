@@ -49,7 +49,7 @@ class CitadelsEnv(gym.Env):
         elif action.object == ActionObject.WARLORD:
             character = self.game.get_character('Warlord')
 
-        if not self.game.character_state[character].state == CharacterState.DECK:
+        if not character.state == CharacterState.DECK:
             print('Invalid action: Agent tried to choose character not in deck')
             return self.get_state(), -100, False, {}
 
@@ -74,7 +74,7 @@ class CitadelsEnv(gym.Env):
 
     def agent_is_murdered(self):
         return self.game.round.murdered_character is not None and \
-               isinstance(self.game.round.get_player_by_character(self.game.round.murdered_character), AgentPlayer)
+               isinstance(self.game.round.murdered_character.player, AgentPlayer)
 
     def step_player_turns(self, action):
         reward = 0
@@ -104,8 +104,8 @@ class CitadelsEnv(gym.Env):
     def get_state(self):
         state = [self.game.round.phase.value]
 
-        for c, c_state in self.game.character_state.items():
-            if self.game.round.phase == Phase.CHOOSE_CHARACTERS and c_state.state == CharacterState.DECK:
+        for c in self.game.characters:
+            if self.game.round.phase == Phase.CHOOSE_CHARACTERS and c.state == CharacterState.DECK:
                 state.append(1)
             else:
                 state.append(0)

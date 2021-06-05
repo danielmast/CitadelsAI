@@ -1,8 +1,6 @@
 import random
 
-# import district
 from game import district, player, character
-from game.character import CharacterState
 from game.round import Round
 
 
@@ -10,7 +8,7 @@ class Game:
     def __init__(self, player_count):
         self.player_count = player_count
         self.players = player.create_players(self, player_count)
-        self.character_state = create_character_state()
+        self.characters = character.create_characters()
         self.district_deck = district.create_deck()
         self.round = None
         self.next_crown_player = random.choice(self.players)
@@ -136,19 +134,6 @@ class Game:
         return players_with_max_gold
 
     def get_character(self, name):
-        for c in self.character_state.keys():
+        for c in self.characters:
             if c.name() == name:
                 return c
-
-
-def create_character_state():
-    return {
-        character.Assassin(): CharacterState(),
-        character.Thief(): CharacterState(),
-        character.Magician(): CharacterState(),
-        character.King(): CharacterState(),
-        character.Bishop(): CharacterState(),
-        character.Merchant(): CharacterState(),
-        character.Architect(): CharacterState(),
-        character.Warlord(): CharacterState()
-    }

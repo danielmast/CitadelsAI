@@ -5,8 +5,27 @@ from game.color import Color
 
 
 class Character(ABC):
+    def __init__(self):
+        self.state = CharacterState.DECK
+        self.player = None
+
     def name(self):
         return type(self).__name__
+
+    def deck(self):
+        self.state = CharacterState.DECK
+        self.player = None
+
+    def choose(self, player):
+        self.state = CharacterState.CHOSEN
+        self.player = player
+
+
+class CharacterState(Enum):
+    DECK = 1
+    FACE_UP = 2
+    FACE_DOWN = 3
+    CHOSEN = 4
 
 
 class ColorCharacter(Character):
@@ -111,7 +130,7 @@ class Warlord(ColorCharacter):
 
     @staticmethod
     def can_destroy_district(player, victim_player, district, round):
-        return round.get_player_by_character(round.game.get_character('Bishop')) != victim_player \
+        return round.game.get_character('Bishop').player != victim_player \
                and district.name != 'Keep' \
                and len(victim_player.city) < 8 \
                and player.gold >= Warlord.destroy_cost(victim_player, district)
@@ -123,20 +142,14 @@ class Warlord(ColorCharacter):
         victim_player.city.remove(district)
 
 
-class CharacterState:
-    DECK = 1
-    FACE_UP = 2
-    FACE_DOWN = 3
-    CHOSEN = 4
-
-    def __init__(self):
-        self.state = CharacterState.DECK
-        self.player = None
-
-    def reset(self):
-        self.state = CharacterState.DECK
-        self.player = None
-
-    def set_player(self, player):
-        self.state = CharacterState.CHOSEN
-        self.player = player
+def create_characters():
+    return [
+        Assassin(),
+        Thief(),
+        Magician(),
+        King(),
+        Bishop(),
+        Merchant(),
+        Architect(),
+        Warlord()
+    ]
