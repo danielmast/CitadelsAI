@@ -138,13 +138,13 @@ class CitadelsEnv(gym.Env):
         else:  # Player turns
             if action.verb == ActionVerb.END_TURN:
                 if action.object == ActionObject.NONE:
-                    return True
+                    return True, ''
                 else:
                     return False, 'Object must be NONE when ending turn'
             elif action.verb == ActionVerb.TAKE_TWO_GOLD:
                 if action.object == ActionObject.NONE:
                     if self.can_take_two_gold:
-                        return True
+                        return True, ''
                     else:
                         return False, 'Cannot take 2 gold'
                 else:
