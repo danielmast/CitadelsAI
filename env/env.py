@@ -2,7 +2,7 @@ import gym
 from gym.spaces import MultiDiscrete
 
 from action import Action, ActionVerb, ActionObject
-from game.character import Assassin, Thief, Magician, King, Bishop, Merchant, Architect, Warlord, CharacterState
+from game.character import CharacterState
 from game.game import Game
 from game.player import AgentPlayer
 from phase import Phase
@@ -12,22 +12,22 @@ class CitadelsEnv(gym.Env):
 
     def __init__(self):
         self.action_space = MultiDiscrete([len(ActionVerb), len(ActionObject)])
-        self.observation_space = MultiDiscrete([2] + (8 * [2]) + [2])
+
+        self.observation_space = MultiDiscrete(8 * [5, 5] + len(ActionVerb) * len(ActionObject) * [2])
+
         self.can_take_two_gold = None
 
     def step(self, a):
         action = Action(a)
 
+        is_valid_action, reason = self.is_valid_action(action)
+        if not is_valid_action:
+            print('Invalid action:', action.verb.name, action.object.name, ',', reason)
+            return self.get_state(), -100, False, {}
+
         if self.game.round.phase == Phase.CHOOSE_CHARACTERS:
-            if action.verb != ActionVerb.CHOOSE or not action.object.is_character():
-                print('Invalid action: Agent did not choose a character:', a)
-                return self.get_state(), -100, False, {}
             return self.step_choose_characters(action)
         elif self.game.round.phase == Phase.PLAYER_TURNS:
-            if (action.verb != ActionVerb.TAKE_TWO_GOLD and action.verb != ActionVerb.END_TURN) \
-                    or action.object != ActionObject.NONE:
-                print('Invalid action: Agent did not do a (currently supported) player turn action, ', a)
-                return self.get_state(), -100, False, {}
             return self.step_player_turns(action)
 
     def step_choose_characters(self, action):
@@ -48,10 +48,6 @@ class CitadelsEnv(gym.Env):
             character = self.game.get_character('Architect')
         elif action.object == ActionObject.WARLORD:
             character = self.game.get_character('Warlord')
-
-        if not character.state == CharacterState.DECK:
-            print('Invalid action: Agent tried to choose character not in deck')
-            return self.get_state(), -100, False, {}
 
         self.game.round.choose_character(self.agent, character)
         self.game.round.choose_characters()
@@ -91,28 +87,70 @@ class CitadelsEnv(gym.Env):
 
             self.game.round.choose_characters(until_agent_is_up=True)
         elif action.verb == ActionVerb.TAKE_TWO_GOLD:
-            if self.can_take_two_gold == 1:
-                self.game.round.current_player.take_2_gold()
-                self.can_take_two_gold = 0
-                reward = 10
-            else:
-                reward = -100
-                print('Invalid action: Agent cannot take 2 gold')
+            self.game.round.current_player.take_2_gold()
+            self.can_take_two_gold = 0
+            reward = 10
 
         return self.get_state(), reward, False, {}
 
     def get_state(self):
-        state = [self.game.round.phase.value]
+        state = []
 
+        # Characters
         for c in self.game.characters:
-            if self.game.round.phase == Phase.CHOOSE_CHARACTERS and c.state == CharacterState.DECK:
-                state.append(1)
-            else:
-                state.append(0)
+            if self.game.round.phase == Phase.CHOOSE_CHARACTERS:
+                if c.state == CharacterState.DECK or c.state == CharacterState.FACE_UP:
+                    state.append(c.state.value)
+                    state.append(0)
+                else:
+                    state.append(0)  # Unknown
+                    state.append(0)
+            else:  # Player turns
+                if isinstance(c.player, AgentPlayer):
+                    state.append(c.state.value)
+                    state.append(c.player.number)
+                else:  # TODO Change character state of other players to CHOSEN when already revealed
+                    state.append(0)  # Unknown
+                    state.append(0)
 
-        state.append(self.can_take_two_gold)
+        # Valid actions
+        for verb in range(len(ActionVerb)):
+            for object in range(len(ActionObject)):
+                if self.is_valid_action(Action([verb, object])):
+                    state.append(1)
+                else:
+                    state.append(0)
 
         return state
+
+    def is_valid_action(self, action):
+        if self.game.round.phase == Phase.CHOOSE_CHARACTERS:
+            if action.verb == ActionVerb.CHOOSE:
+                if action.object.is_character():
+                    if action.object.to_character(self.game).state == CharacterState.DECK:
+                        return True, ''
+                    else:
+                        return False, 'Chosen character is not in deck'
+                else:
+                    return False, 'Object must be a character in Phase.CHOOSE_CHARACTERS'
+            else:
+                return False, 'Verb must be CHOOSE in Phase.CHOOSE_CHARACTERS'
+        else:  # Player turns
+            if action.verb == ActionVerb.END_TURN:
+                if action.object == ActionObject.NONE:
+                    return True
+                else:
+                    return False, 'Object must be NONE when ending turn'
+            elif action.verb == ActionVerb.TAKE_TWO_GOLD:
+                if action.object == ActionObject.NONE:
+                    if self.can_take_two_gold:
+                        return True
+                    else:
+                        return False, 'Cannot take 2 gold'
+                else:
+                    return False, 'Object must be NONE when taking 2 gold'
+            else:
+                return False, 'Unsupported verb in Phase.PLAYER_TURNS'
 
     def reset(self):
         self.game = Game(player_count=4)

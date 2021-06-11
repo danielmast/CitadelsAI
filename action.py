@@ -129,3 +129,21 @@ class ActionObject(Enum):
 
     def is_district(self):
         return 12 <= self.value <= 77
+
+    def to_character(self, game):
+        if self == ActionObject.ASSASSIN:
+            return game.get_character('Assassin')
+        elif self == ActionObject.THIEF:
+            return game.get_character('Thief')
+        elif self == ActionObject.MAGICIAN:
+            return game.get_character('Magician')
+        elif self == ActionObject.KING:
+            return game.get_character('King')
+        elif self == ActionObject.BISHOP:
+            return game.get_character('Bishop')
+        elif self == ActionObject.MERCHANT:
+            return game.get_character('Merchant')
+        elif self == ActionObject.ARCHITECT:
+            return game.get_character('Architect')
+        elif self == ActionObject.WARLORD:
+            return game.get_character('Warlord')

@@ -6,7 +6,8 @@ from game.color import Color
 
 
 class Player(ABC):
-    def __init__(self, name):
+    def __init__(self, number, name):
+        self.number = number
         self.name = name
         self.gold = 0
         self._hand = []
@@ -123,8 +124,8 @@ class Player(ABC):
 
 
 class AgentPlayer(Player):
-    def __init__(self, name, model):
-        super(AgentPlayer, self).__init__(name)
+    def __init__(self, number, name, model):
+        super(AgentPlayer, self).__init__(number, name)
         self.model = model
 
     def choose_character(self, game, round):
@@ -265,13 +266,13 @@ def create_players(game, player_count):
     players = []
     players.append(create_agent_player())
     for p in range(2, player_count + 1):
-        players.append(RandomPlayer('Player {}'.format(p)))
+        players.append(RandomPlayer(p, 'Player {}'.format(p)))
     return players
 
 
 def create_agent_player():
     model = None
-    return AgentPlayer('Agent', model)
+    return AgentPlayer(1, 'Agent', model)
 
 
 def face_up_count(player_count):

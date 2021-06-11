@@ -1,7 +1,7 @@
 import random
 from enum import Enum
 
-from game.player import Player, face_up_count, AgentPlayer
+from game.player import face_up_count, AgentPlayer
 from game.character import CharacterState, King
 from phase import Phase
 
