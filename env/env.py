@@ -22,7 +22,7 @@ class CitadelsEnv(gym.Env):
 
         is_valid_action, reason = self.is_valid_action(action)
         if not is_valid_action:
-            print('Invalid action:', action.verb.name, action.object.name, ',', reason)
+            # print('Invalid action:', action.verb.name, action.object.name, ',', reason)
             return self.get_state(), -100, False, {}
 
         if self.game.round.phase == Phase.CHOOSE_CHARACTERS:
