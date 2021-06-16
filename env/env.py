@@ -20,7 +20,7 @@ class CitadelsEnv(gym.Env):
     def step(self, a):
         action = Action(a)
 
-        is_valid_action, reason = self.is_valid_action(action)
+        is_valid_action, reason = action.is_valid(self)
         if not is_valid_action:
             print('Invalid action:', action.verb.name, action.object.name, ',', reason)
             return self.get_state(), -100, False, {}
@@ -116,47 +116,12 @@ class CitadelsEnv(gym.Env):
         # Valid actions
         for verb in range(len(ActionVerb)):
             for object in range(len(ActionObject)):
-                if self.is_valid_action(Action([verb, object])):
+                if Action([verb, object]).is_valid(self):
                     state.append(1)
                 else:
                     state.append(0)
 
         return state
-
-    def is_valid_action(self, action):
-        if self.game.round.phase == Phase.CHOOSE_CHARACTERS:
-            return self.is_valid_action_choose_characters(action)
-        else:
-            return self.is_valid_action_player_turns(action)
-
-    def is_valid_action_choose_characters(self, action):
-        if action.verb == ActionVerb.CHOOSE:
-            if action.object.is_character():
-                if action.object.to_character(self.game).state == CharacterState.DECK:
-                    return True, ''
-                else:
-                    return False, 'Chosen character is not in deck'
-            else:
-                return False, 'Object must be a character in Phase.CHOOSE_CHARACTERS'
-        else:
-            return False, 'Verb must be CHOOSE in Phase.CHOOSE_CHARACTERS'
-
-    def is_valid_action_player_turns(self, action):
-        if action.verb == ActionVerb.END_TURN:
-            if action.object == ActionObject.NONE:
-                return True, ''
-            else:
-                return False, 'Object must be NONE when ending turn'
-        elif action.verb == ActionVerb.TAKE_TWO_GOLD:
-            if action.object == ActionObject.NONE:
-                if self.can_take_two_gold:
-                    return True, ''
-                else:
-                    return False, 'Cannot take 2 gold'
-            else:
-                return False, 'Object must be NONE when taking 2 gold'
-        else:
-            return False, 'Unsupported verb in Phase.PLAYER_TURNS'
 
     def reset(self):
         self.game = Game(player_count=4)

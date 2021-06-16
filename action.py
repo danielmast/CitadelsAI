@@ -1,10 +1,48 @@
 from enum import Enum
 
+from game.character import CharacterState
+from phase import Phase
+
 
 class Action:
     def __init__(self, a):
         self.verb = ActionVerb(a[0])
         self.object = ActionObject(a[1])
+
+    def is_valid(self, env):
+        if env.game.round.phase == Phase.CHOOSE_CHARACTERS:
+            return self.is_valid_choose_characters(env)
+        else:
+            return self.is_valid_player_turns(env)
+
+    def is_valid_choose_characters(self, env):
+        if self.verb == ActionVerb.CHOOSE:
+            if self.object.is_character():
+                if self.object.to_character(env.game).state == CharacterState.DECK:
+                    return True, ''
+                else:
+                    return False, 'Chosen character is not in deck'
+            else:
+                return False, 'Object must be a character in Phase.CHOOSE_CHARACTERS'
+        else:
+            return False, 'Verb must be CHOOSE in Phase.CHOOSE_CHARACTERS'
+
+    def is_valid_player_turns(self, env):
+        if self.verb == ActionVerb.END_TURN:
+            if self.object == ActionObject.NONE:
+                return True, ''
+            else:
+                return False, 'Object must be NONE when ending turn'
+        elif self.verb == ActionVerb.TAKE_TWO_GOLD:
+            if self.object == ActionObject.NONE:
+                if env.can_take_two_gold:
+                    return True, ''
+                else:
+                    return False, 'Cannot take 2 gold'
+            else:
+                return False, 'Object must be NONE when taking 2 gold'
+        else:
+            return False, 'Unsupported verb in Phase.PLAYER_TURNS'
 
 
 class ActionVerb(Enum):
