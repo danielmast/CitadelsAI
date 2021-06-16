@@ -125,32 +125,38 @@ class CitadelsEnv(gym.Env):
 
     def is_valid_action(self, action):
         if self.game.round.phase == Phase.CHOOSE_CHARACTERS:
-            if action.verb == ActionVerb.CHOOSE:
-                if action.object.is_character():
-                    if action.object.to_character(self.game).state == CharacterState.DECK:
-                        return True, ''
-                    else:
-                        return False, 'Chosen character is not in deck'
-                else:
-                    return False, 'Object must be a character in Phase.CHOOSE_CHARACTERS'
-            else:
-                return False, 'Verb must be CHOOSE in Phase.CHOOSE_CHARACTERS'
-        else:  # Player turns
-            if action.verb == ActionVerb.END_TURN:
-                if action.object == ActionObject.NONE:
+            return self.is_valid_action_choose_characters(action)
+        else:
+            return self.is_valid_action_player_turns(action)
+
+    def is_valid_action_choose_characters(self, action):
+        if action.verb == ActionVerb.CHOOSE:
+            if action.object.is_character():
+                if action.object.to_character(self.game).state == CharacterState.DECK:
                     return True, ''
                 else:
-                    return False, 'Object must be NONE when ending turn'
-            elif action.verb == ActionVerb.TAKE_TWO_GOLD:
-                if action.object == ActionObject.NONE:
-                    if self.can_take_two_gold:
-                        return True, ''
-                    else:
-                        return False, 'Cannot take 2 gold'
-                else:
-                    return False, 'Object must be NONE when taking 2 gold'
+                    return False, 'Chosen character is not in deck'
             else:
-                return False, 'Unsupported verb in Phase.PLAYER_TURNS'
+                return False, 'Object must be a character in Phase.CHOOSE_CHARACTERS'
+        else:
+            return False, 'Verb must be CHOOSE in Phase.CHOOSE_CHARACTERS'
+
+    def is_valid_action_player_turns(self, action):
+        if action.verb == ActionVerb.END_TURN:
+            if action.object == ActionObject.NONE:
+                return True, ''
+            else:
+                return False, 'Object must be NONE when ending turn'
+        elif action.verb == ActionVerb.TAKE_TWO_GOLD:
+            if action.object == ActionObject.NONE:
+                if self.can_take_two_gold:
+                    return True, ''
+                else:
+                    return False, 'Cannot take 2 gold'
+            else:
+                return False, 'Object must be NONE when taking 2 gold'
+        else:
+            return False, 'Unsupported verb in Phase.PLAYER_TURNS'
 
     def reset(self):
         self.game = Game(player_count=4)
