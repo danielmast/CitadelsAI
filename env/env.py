@@ -16,6 +16,8 @@ class CitadelsEnv(gym.Env):
         self.observation_space = MultiDiscrete(8 * [5, 5] + len(ActionVerb) * len(ActionObject) * [2])
 
         self.can_take_two_gold = None
+        self.can_draw_two_districts = None
+        self.must_discard_district = None
 
     def step(self, a):
         action = Action(a)
@@ -64,7 +66,9 @@ class CitadelsEnv(gym.Env):
 
             self.game.round.choose_characters(until_agent_is_up=True)
         else:
-            self.can_take_two_gold = 1
+            self.can_take_two_gold = True
+            self.can_draw_two_districts = True
+            self.must_discard_district = False
 
         return self.get_state(), 0, False, {}
 
@@ -88,7 +92,21 @@ class CitadelsEnv(gym.Env):
             self.game.round.choose_characters(until_agent_is_up=True)
         elif action.verb == ActionVerb.TAKE_TWO_GOLD:
             self.game.round.current_player.take_2_gold()
-            self.can_take_two_gold = 0
+            self.can_take_two_gold = False
+            self.can_draw_two_districts = False
+            reward = 10
+        elif action.verb == ActionVerb.DRAW_TWO_DISTRICTS:
+            self.game.round.current_player.draw_district(self.game)
+            self.game.round.current_player.draw_district(self.game)
+            self.can_take_two_gold = False
+            self.can_draw_two_districts = False
+            self.must_discard_district = True
+            reward = 10
+        elif action.verb == ActionVerb.DISCARD:
+            self.game.round.current_player.discard_district(
+                self.game, action.object.to_district(self.game))
+            self.game.round.current_player.put_drawn_districts_in_hand()
+            self.must_discard_district = False
             reward = 10
 
         return self.get_state(), reward, False, {}
@@ -128,7 +146,6 @@ class CitadelsEnv(gym.Env):
         self.agent = self.game.players[0]
         self.game.start()
         self.game.round.start()
-        self.can_take_two_gold = 0
 
         self.game.round.choose_characters(until_agent_is_up=True)
 

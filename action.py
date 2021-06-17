@@ -28,6 +28,9 @@ class Action:
             return False, 'Verb must be CHOOSE in Phase.CHOOSE_CHARACTERS'
 
     def is_valid_player_turns(self, env):
+        if env.must_discard_district and self.verb != ActionVerb.DISCARD:
+            return False, 'Must discard district'
+
         if self.verb == ActionVerb.END_TURN:
             if self.object == ActionObject.NONE:
                 return True, ''
@@ -41,6 +44,25 @@ class Action:
                     return False, 'Cannot take 2 gold'
             else:
                 return False, 'Object must be NONE when taking 2 gold'
+        elif self.verb == ActionVerb.DRAW_TWO_DISTRICTS:
+            if self.object == ActionObject.NONE:
+                if env.can_draw_two_districts:
+                    return True, ''
+                else:
+                    return False, 'Cannot take two districts'
+            else:
+                return False, 'Object must be NONE when drawing 2 districts'
+        elif self.verb == ActionVerb.DISCARD:
+            if env.must_discard_district:
+                if self.object.is_district():
+                    if env.game.round.current_player.has_drawn(self.object.to_district(env.game)):
+                        return True, ''
+                    else:
+                        return False, 'Must discard just drawn district'
+                else:
+                    return False, 'Object must be a district'
+            else:
+                return False, 'Cannot discard district'
         else:
             return False, 'Unsupported verb in Phase.PLAYER_TURNS'
 
@@ -185,3 +207,6 @@ class ActionObject(Enum):
             return game.get_character('Architect')
         elif self == ActionObject.WARLORD:
             return game.get_character('Warlord')
+
+    def to_district(self, game):
+        return game.districts[self.value - 12]

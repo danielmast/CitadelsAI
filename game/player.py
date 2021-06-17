@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 from game.character import CharacterState, Assassin, Thief, Magician, ColorCharacter, Merchant, Architect, Warlord
 from game.color import Color
+from game.district import DistrictState
 
 
 class Player(ABC):
@@ -12,6 +13,7 @@ class Player(ABC):
         self.gold = 0
         self._hand = []
         self._city = []
+        self._drawn = []
 
     def city(self):
         return self._city
@@ -68,12 +70,25 @@ class Player(ABC):
                 return True
         return False
 
-    def draw_district(self, game):
+    def has_drawn(self, district):
+        return district in self._drawn
+
+    def draw_district(self, game, in_hand=False):
         print(self.name, 'draws a district')
         district = game.district_deck.pop()
-        district.put_in_hand(self)
-        self._hand.append(district)
+        district.draw(self, in_hand)
+        if in_hand:
+            self._hand.append(district)
+        else:
+            self._drawn.append(district)
         return district
+
+    def put_drawn_districts_in_hand(self):
+        for district in self._drawn:
+            district.put_in_hand(self)
+
+        self._hand.extend(self._drawn)
+        self._drawn = []
 
     def allowed_to_draw_number(self):
         if self.has_built('Observatory'):
@@ -87,8 +102,12 @@ class Player(ABC):
 
     def discard_district(self, game, district):
         print(self.name, 'discards a district')
+        if district.state == DistrictState.IN_HAND:
+            self._hand.remove(district)
+        else:
+            self._drawn.remove(district)
+
         district.discard()
-        self._hand.remove(district)
         game.district_deck.insert(0, district)
 
     def take_2_gold(self):
@@ -241,14 +260,14 @@ class RandomPlayer(Player):
         self.gold += 2
 
     def draw_districts(self, game):
-        drawn = []
         for i in range(0, min(len(game.district_deck), self.allowed_to_draw_number())):
-            drawn.append(self.draw_district(game))
+            self.draw_district(game)
 
-        for i in range(0, min(len(drawn), self.allowed_to_draw_number() - self.allowed_to_keep_number())):
-            d = random.choice(drawn)
-            drawn.remove(d)
+        for i in range(0, min(len(self._drawn), self.allowed_to_draw_number() - self.allowed_to_keep_number())):
+            d = random.choice(self._drawn)
             self.discard_district(game, d)
+
+        self.put_drawn_districts_in_hand()
 
     def buildable_districts(self):
         affordable = []

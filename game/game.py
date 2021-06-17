@@ -20,7 +20,7 @@ class Game:
         for p in self.players:
             p.gold = 2
             for i in range(4):
-                p.draw_district(self)
+                p.draw_district(self, in_hand=True)
 
         print('Start game')
         round_number = 1
@@ -46,7 +46,7 @@ class Game:
         for p in self.players:
             p.gold = 2
             for i in range(4):
-                p.draw_district(self)
+                p.draw_district(self, in_hand=True)
 
         print('Start game')
         self.set_next_round()

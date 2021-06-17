@@ -26,6 +26,13 @@ class District:
         self.state = DistrictState.IN_HAND
         self.player = player
 
+    def draw(self, player, in_hand=False):
+        if in_hand:
+            self.state = DistrictState.IN_HAND
+        else:
+            self.state = DistrictState.DRAWN
+        self.player = player
+
     def discard(self):
         self.state = DistrictState.DECK
 
@@ -34,6 +41,7 @@ class DistrictState(Enum):
     DECK = 1
     IN_HAND = 2
     BUILT = 3
+    DRAWN = 4
 
 
 def create_districts():
