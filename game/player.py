@@ -64,11 +64,17 @@ class Player(ABC):
                 number += 1
         return number
 
+    def can_build(self, district):
+        return district.cost <= self.gold
+
     def has_built(self, district_name):
         for district in self._city:
             if district.name == district_name:
                 return True
         return False
+
+    def has_in_hand(self, district):
+        return district in self._hand
 
     def has_drawn(self, district):
         return district in self._drawn

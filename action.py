@@ -63,6 +63,21 @@ class Action:
                     return False, 'Object must be a district'
             else:
                 return False, 'Cannot discard district'
+        elif self.verb == ActionVerb.BUILD:
+            if env.can_build:
+                if self.object.is_district():
+                    district = self.object.to_district(env.game)
+                    if env.game.round.current_player.has_in_hand(district):
+                        if env.game.round.current_player.can_build(district):
+                            return True, ''
+                        else:
+                            return False, 'Not enough gold to build district'
+                    else:
+                        return False, 'District must be in hand'
+                else:
+                    return False, 'Object must be a district'
+            else:
+                return False, 'Cannot build district'
         else:
             return False, 'Unsupported verb in Phase.PLAYER_TURNS'
 

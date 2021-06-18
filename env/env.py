@@ -18,6 +18,7 @@ class CitadelsEnv(gym.Env):
         self.can_take_two_gold = None
         self.can_draw_two_districts = None
         self.must_discard_district = None
+        self.can_build = None
 
     def step(self, a):
         action = Action(a)
@@ -69,6 +70,7 @@ class CitadelsEnv(gym.Env):
             self.can_take_two_gold = True
             self.can_draw_two_districts = True
             self.must_discard_district = False
+            self.can_build = False
 
         return self.get_state(), 0, False, {}
 
@@ -94,6 +96,7 @@ class CitadelsEnv(gym.Env):
             self.game.round.current_player.take_2_gold()
             self.can_take_two_gold = False
             self.can_draw_two_districts = False
+            self.can_build = True
             reward = 10
         elif action.verb == ActionVerb.DRAW_TWO_DISTRICTS:
             self.game.round.current_player.draw_district(self.game)
@@ -107,7 +110,12 @@ class CitadelsEnv(gym.Env):
                 self.game, action.object.to_district(self.game))
             self.game.round.current_player.put_drawn_districts_in_hand()
             self.must_discard_district = False
+            self.can_build = True
             reward = 10
+        elif action.verb == ActionVerb.BUILD:
+            self.game.round.current_player.build_district(action.object.to_district(self.game))
+            self.can_build = False
+            reward = 40
 
         return self.get_state(), reward, False, {}
 
