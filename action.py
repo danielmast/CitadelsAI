@@ -47,7 +47,10 @@ class Action:
         elif self.verb == ActionVerb.DRAW_TWO_DISTRICTS:
             if self.object == ActionObject.NONE:
                 if env.can_draw_two_districts:
-                    return True, ''
+                    if len(env.game.district_deck) >= 2:
+                        return True, ''
+                    else:
+                        return False, 'Cannot take two districts (deck has less than two cards)'
                 else:
                     return False, 'Cannot take two districts'
             else:
