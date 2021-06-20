@@ -18,6 +18,9 @@ class Player(ABC):
     def city(self):
         return self._city
 
+    def hand(self):
+        return self._hand
+
     @abstractmethod
     def choose_character(self, game, round):
         raise Exception('Should be implemented by sub class')

@@ -26,7 +26,7 @@ class CitadelsEnv(gym.Env):
         is_valid_action, reason = action.is_valid(self)
         if not is_valid_action:
             print('Invalid action:', action.verb.name, action.object.name, ',', reason)
-            return self.get_state(), -100, False, {}
+            return self.get_state(), 0, False, {}
 
         if self.game.round.phase == Phase.CHOOSE_CHARACTERS:
             return self.step_choose_characters(action)
@@ -81,6 +81,10 @@ class CitadelsEnv(gym.Env):
     def step_player_turns(self, action):
         reward = 0
         if action.verb == ActionVerb.END_TURN:
+            if self.can_take_two_gold or self.can_draw_two_districts:
+                reward = reward - 2
+            if self.can_build and self.game.round.current_player.gold > 10:
+                reward = reward - 2
             self.game.round.end_player_turn()
             self.game.round.player_turns(continued=True)
 
@@ -93,29 +97,31 @@ class CitadelsEnv(gym.Env):
 
             self.game.round.choose_characters(until_agent_is_up=True)
         elif action.verb == ActionVerb.TAKE_TWO_GOLD:
+            if self.game.round.current_player.gold > 10:
+                reward = reward - 2
             self.game.round.current_player.take_2_gold()
             self.can_take_two_gold = False
             self.can_draw_two_districts = False
             self.can_build = True
-            reward = 10
         elif action.verb == ActionVerb.DRAW_TWO_DISTRICTS:
+            if len(self.game.round.current_player.hand()) > 8:
+                reward = reward - 2
             self.game.round.current_player.draw_district(self.game)
             self.game.round.current_player.draw_district(self.game)
             self.can_take_two_gold = False
             self.can_draw_two_districts = False
             self.must_discard_district = True
-            reward = 10
         elif action.verb == ActionVerb.DISCARD:
             self.game.round.current_player.discard_district(
                 self.game, action.object.to_district(self.game))
             self.game.round.current_player.put_drawn_districts_in_hand()
             self.must_discard_district = False
             self.can_build = True
-            reward = 10
         elif action.verb == ActionVerb.BUILD:
-            self.game.round.current_player.build_district(action.object.to_district(self.game))
+            district = action.object.to_district(self.game)
+            self.game.round.current_player.build_district(district)
             self.can_build = False
-            reward = 40
+            reward = district.value
 
         return self.get_state(), reward, False, {}
 
