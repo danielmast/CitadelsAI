@@ -1,5 +1,5 @@
 import gym
-from gym.spaces import MultiDiscrete
+from gym.spaces import MultiDiscrete, Discrete
 
 from action import Action, ActionVerb, ActionObject
 from game.character import CharacterState
@@ -11,9 +11,9 @@ from phase import Phase
 class CitadelsEnv(gym.Env):
 
     def __init__(self):
-        self.action_space = MultiDiscrete([len(ActionVerb), len(ActionObject)])
+        self.action_space = Discrete(232)
 
-        self.observation_space = MultiDiscrete(8 * [5, 5] + len(ActionVerb) * len(ActionObject) * [2])
+        self.observation_space = MultiDiscrete(8 * [5, 5] + 232 * [2])
 
         self.can_take_two_gold = None
         self.can_draw_two_districts = None
@@ -146,12 +146,11 @@ class CitadelsEnv(gym.Env):
                     state.append(0)
 
         # Valid actions
-        for verb in range(len(ActionVerb)):
-            for object in range(len(ActionObject)):
-                if Action([verb, object]).is_valid(self):
-                    state.append(1)
-                else:
-                    state.append(0)
+        for a in range(232):
+            if Action(a).is_valid(self):
+                state.append(1)
+            else:
+                state.append(0)
 
         return state
 

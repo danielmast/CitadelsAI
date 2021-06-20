@@ -18,7 +18,7 @@ callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
 
 # # Learn
 # model = A2C('MlpPolicy', env, verbose=1)
-# model = PPO('MlpPolicy', env, verbose=1)
+model = PPO('MlpPolicy', env, verbose=1)
 model = PPO.load("/Users/daniel/repos/CitadelsAI/logs/best_model.zip", env=env)
 model.learn(total_timesteps=100000, callback=callback)
 

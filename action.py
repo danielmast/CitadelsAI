@@ -6,8 +6,43 @@ from phase import Phase
 
 class Action:
     def __init__(self, a):
-        self.verb = ActionVerb(a[0])
-        self.object = ActionObject(a[1])
+        self.object = ActionObject.NONE
+
+        if a < 8:
+            self.verb = ActionVerb.CHOOSE
+            self.object = ActionObject(a + 1)
+        elif a < 16:  # 8 <= a <= 15
+            self.verb = ActionVerb.MURDER
+            self.object = ActionObject(a - 7)
+        elif a < 24:  # 16 <= a <= 23
+            self.verb = ActionVerb.ROB
+            self.object = ActionObject(a - 15)
+        elif a < 27:
+            self.verb = ActionVerb.EXCHANGE_HANDS
+            self.object = ActionObject(a - 15)
+        elif a < 93:
+            self.verb = ActionVerb.BUILD
+            self.object = ActionObject(a - 15)
+        elif a < 159:
+            self.verb = ActionVerb.DISCARD
+            self.object = ActionObject(a - 81)
+        elif a < 225:
+            self.verb = ActionVerb.DESTROY
+            self.object = ActionObject(a - 147)
+        elif a == 225:
+            self.verb = ActionVerb.TAKE_TWO_GOLD
+        elif a == 226:
+            self.verb = ActionVerb.DRAW_TWO_DISTRICTS
+        elif a == 227:
+            self.verb = ActionVerb.RECEIVE_CITY_GOLD
+        elif a == 228:
+            self.verb = ActionVerb.DISCARD_AND_DRAW
+        elif a == 229:
+            self.verb = ActionVerb.RECEIVE_EXTRA_GOLD
+        elif a == 230:
+            self.verb = ActionVerb.DRAW_EXTRA_DISTRICTS
+        elif a == 231:
+            self.verb = ActionVerb.END_TURN
 
     def is_valid(self, env):
         if env.game.round.phase == Phase.CHOOSE_CHARACTERS:
